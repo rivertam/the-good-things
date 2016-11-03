@@ -1,0 +1,6 @@
+[package]
+name = "the-good-things"
+version = "0.1.0"
+authors = ["Ben Berman <ben.m.berman@gmail.com>"]
+
+[dependencies]
