@@ -2,15 +2,45 @@ use std::io::Write;
 use std::fs::OpenOptions;
 use std::io::BufRead;
 
-fn get_good_thing() -> String {
+fn too_similar(thing1: &String, thing2: &String) -> bool {
+    println!("comparing {} and {}", thing1, thing2);
+    let matches = thing1.split_whitespace()
+        .flat_map(|c1| thing2.split_whitespace().filter(move |&c2| c1 == c2))
+        .count();
+
+
+    let length1 = thing1.split_whitespace().count();
+    let length2 = thing2.split_whitespace().count();
+    let longer_length = std::cmp::max(length1, length2);
+
+    matches > longer_length / 2
+}
+
+fn get_good_thing(good_things: &std::vec::Vec<String>) -> String {
     print!("Say something nice to me: ");
     std::io::stdout().flush().expect("Couldn't flush stdout");
     let mut input = String::new();
     match std::io::stdin().read_line(&mut input) {
-        Ok(_) => input,
+        Ok(_) => {
+            let mut similar_string = None;
+            for thing in good_things {
+                if too_similar(&thing, &input) {
+                    similar_string = Some(thing);
+                    break;
+                }
+            }
+
+            match similar_string {
+                Some(s) => {
+                    println!("\"{}\" is too similar to \"{}\"", input, s);
+                    get_good_thing(good_things)
+                },
+                None => input,
+            }
+        },
         Err(_) => {
             println!("That ain't right!");
-            get_good_thing()
+            get_good_thing(good_things)
         }
     }
 }
@@ -72,13 +102,10 @@ fn write_good_thing(string: String) {
 }
 
 fn main() {
-    for good_thing in fetch_good_things() {
-        println!("{}", good_thing);
-    }
-
+    let good_things = fetch_good_things();
 
     for _ in 0..5 {
-        let good_thing = get_good_thing();
+        let good_thing = get_good_thing(&good_things);
         write_good_thing(good_thing);
     }
 }
