@@ -3,7 +3,6 @@ use std::fs::OpenOptions;
 use std::io::BufRead;
 
 fn too_similar(thing1: &String, thing2: &String) -> bool {
-    println!("comparing {} and {}", thing1, thing2);
     let matches = thing1.split_whitespace()
         .flat_map(|c1| thing2.split_whitespace().filter(move |&c2| c1 == c2))
         .count();
@@ -32,12 +31,12 @@ fn get_good_thing(good_things: &std::vec::Vec<String>) -> String {
 
             match similar_string {
                 Some(s) => {
-                    println!("\"{}\" is too similar to \"{}\"", input, s);
+                    println!("\"{}\" is too similar to \"{}\"", input.trim(), s);
                     get_good_thing(good_things)
-                },
+                }
                 None => input,
             }
-        },
+        }
         Err(_) => {
             println!("That ain't right!");
             get_good_thing(good_things)
@@ -58,19 +57,18 @@ fn data_file_path() -> String {
 }
 
 fn fetch_good_things() -> Vec<String> {
-    let res = std::fs::File::open(data_file_path())
-        .and_then(|f| {
-            let file = std::io::BufReader::new(&f);
-            let mut vec = std::vec::Vec::new();
-            for line in file.lines() {
-                match line {
-                    Ok(l) => vec.push(l),
-                    Err(_) => continue,
-                }
+    let res = std::fs::File::open(data_file_path()).and_then(|f| {
+        let file = std::io::BufReader::new(&f);
+        let mut vec = std::vec::Vec::new();
+        for line in file.lines() {
+            match line {
+                Ok(l) => vec.push(l),
+                Err(_) => continue,
             }
+        }
 
-            return Ok(vec)
-        });
+        return Ok(vec);
+    });
 
     match res {
         Ok(v) => v,
@@ -79,7 +77,7 @@ fn fetch_good_things() -> Vec<String> {
             println!("Located at {}", data_file_path());
             println!("Error: {}", e);
             std::vec::Vec::new()
-        },
+        }
     }
 }
 
@@ -91,13 +89,12 @@ fn write_good_thing(string: String) {
                 .create(true)
                 .append(true)
                 .open(data_file_path())
-        }).and_then(|mut file| {
-            file.write_all(string.as_bytes())
-        });
+        })
+        .and_then(|mut file| file.write_all(string.as_bytes()));
 
     match res {
         Ok(_) => return,
-        Err(error) => println!("Couldn't write to file {}", error)
+        Err(error) => println!("Couldn't write to file {}", error),
     }
 }
 
